@@ -1,11 +1,12 @@
 import _ from 'underscore';
 import Room from "../models/Room";
-import Reserve from "../models/Reserve";
+import User from "../models/User";
 import CacheManager from "./CacheManager";
+import Reservation from "../models/Reservation";
 import LoginRequest from "../requests/LoginRequest";
 import StorageFactory from "../../backend/StorageFactory";
 import RegisterRequest from "../requests/RegisterRequest";
-import AddReserveRequest from "../requests/AddReserveRequest";
+import UpdateReserveRequest from "../requests/UpdateReserveRequest";
 import GetReservesRequest from "../requests/GetReservesRequest";
 
 let sharedInstance = null;
@@ -22,13 +23,7 @@ export default class DataManager {
         this.rooms = [];
         this.reservations = [];
         this.roomsCache = new CacheManager(Room);
-        this.reservesCache = new CacheManager(Reserve);
-    }
-
-    initialSetup(data) {
-        this.user = data.user;
-        this.rooms = data.rooms;
-        this.reservations = data.reservations;
+        this.reservesCache = new CacheManager(Reservation);
     }
 
     registration(data, callback) {
@@ -46,7 +41,9 @@ export default class DataManager {
         let req = new LoginRequest(data);
         req.execute()
             .then(res => {
-                this.initialSetup(res);
+                this.user = new User(res.user);
+                this.rooms = this.roomsCache.createModelsArray(res.rooms);
+                this.reservations = this.reservesCache.createModelsArray(res.reservations, true);
                 callback(null, res);
             })
             .catch(err => {
@@ -79,7 +76,7 @@ export default class DataManager {
         let req = new GetReservesRequest(userId);
         req.execute()
             .then(res => {
-                this.reservations = res;
+                this.reservations = [...this.reservations, this.reservesCache.createModelsArray(res, true)];
                 callback(null, this.reservations);
             })
             .then(err => {
@@ -95,11 +92,12 @@ export default class DataManager {
      */
     updateReservation(data, edit, callback) {
         data.user_id = this.user.id;
-        let req = new AddReserveRequest(data);
+        let req = new UpdateReserveRequest(data);
         req.execute()
             .then(res => {
+                let obj = this.reservesCache.createModelFromJson(res);
                 if(!edit) {
-                    this.reservations.unshift(res);
+                    this.reservations.unshift(obj);
                 }
                 callback(null, res);
             })

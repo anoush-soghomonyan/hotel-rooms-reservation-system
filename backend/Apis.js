@@ -44,12 +44,19 @@ export function getReservations(data, createdAt, callback) {
     }
 }
 
-export function addReservation(data, callback) {
+export function updateReservation(data, callback) {
     if(reliableUser(data.user_id, data.token)) {
-        data.id = uuidv1();
-        data.creator_id = data.user_id;
-        data.created_at = new Date();
+        if(!data.id) {
+            data.id = uuidv1();
+            data.created_at = new Date();
+        } else {
+            if(!data.updated_at) {
+                data.updated_at = [];
+            }
+            data.updated_at.unshift(new Date());
+        }
         const {user_id, token, ...data} = data;
+        data.creator_id = user_id;
         try {
             StorageFactory.updateReservation(data);
             callback(null, data);
@@ -88,6 +95,6 @@ export function login(data, callback) {
             reservations: Object.values(StorageFactory.getReservations()),
         });
     } else {
-        callback({message: errLoginPass})
+        callback({message: errLoginPass});
     }
 }

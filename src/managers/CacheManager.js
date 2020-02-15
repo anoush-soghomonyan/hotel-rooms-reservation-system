@@ -5,14 +5,16 @@ export default class CacheManager {
     }
 
     createModelFromJson(json) {
-        if (!json) {
+        if(!json) {
             return null;
         }
-        let model = this.models.get(json.id);
-        if (model === undefined) {
+        let model = this.getModelById(json.id);
+        if(model === undefined) {
             let instance = new this.model(json);
-            this.models.set(instance.id, instance);
+            this.setModelById(instance.id, instance);
             model = instance;
+        } else if(model.update){
+            model.update(json);
         }
         return model;
     }

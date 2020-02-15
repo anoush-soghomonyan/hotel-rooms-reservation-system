@@ -1,8 +1,12 @@
 import Model from "./Model";
 
-export default class Reserve extends Model{
+export default class Reservation extends Model{
     constructor(data) {
         super(data.id);
+        this.update(data);
+    }
+
+    update(data) {
         this.creator_id = data.creator_id;
         this.created_at = data.created_at;
         this.updated_at = data.updated_at;
