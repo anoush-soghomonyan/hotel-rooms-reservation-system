@@ -17,7 +17,10 @@ export default class Request {
         })
     }
 
-    //virtual function should return result
+    /**
+     * Function should return result
+     * @param result is server response
+     */
     onResponseReady(result) {
         return result;
     }

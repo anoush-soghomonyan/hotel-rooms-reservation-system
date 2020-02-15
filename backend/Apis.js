@@ -6,7 +6,13 @@ import StorageFactory from "./StorageFactory";
  * this is a fake token
  * @type {string}
  */
-let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFub3VzaCIsIm5hbWUiOiJBbm91c2ggU29naG9tb255YW4iLCJwYXNzd29yZCI6ImFub3VzaC5wYXNzIn0.2LNw76sf1id94QZ8qJAGMvxx3rjx5TYIN57paLSha2Q";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFub3VzaCIsIm5hbWUiOiJBbm91c2ggU29naG9tb255YW4iLCJwYXNzd29yZCI6ImFub3VzaC5wYXNzIn0.2LNw76sf1id94QZ8qJAGMvxx3rjx5TYIN57paLSha2Q";
+
+const errNotExist = "User doesn't exist";
+const errAddReserve = "You can't add new reservation";
+const errUsernameExist = "This username already has taken :(";
+const errSomethingWrong = "Something went wrong, while fetching reservations";
+const errLoginPass = "Please make sure that you have entered your login and password correctly.";
 
 export function createToken(data) {
     return token;
@@ -21,7 +27,7 @@ export function reliableUser(id, token) {
     }
 }
 
-export function getReservations(data, callback) {
+export function getReservations(data, createdAt, callback) {
     if(reliableUser(data.id, data.token)) {
         let reservations = StorageFactory.getReservations();
         if(reservations) {
@@ -30,23 +36,36 @@ export function getReservations(data, callback) {
             }
         } else {
             if(callback) {
-                callback({message: "Something went wrong, while fetching reservations"})
+                callback({message: errSomethingWrong});
             }
         }
     } else {
-        callback({message: "User doesn't exist"});
+        callback({message: errNotExist});
     }
 }
 
 export function addReservation(data, callback) {
-
+    if(reliableUser(data.user_id, data.token)) {
+        data.id = uuidv1();
+        data.creator_id = data.user_id;
+        data.created_at = new Date();
+        const {user_id, token, ...data} = data;
+        try {
+            StorageFactory.updateReservation(data);
+            callback(null, data);
+        } catch(e) {
+            callback({message: e});
+        }
+    } else {
+        callback({message: errAddReserve})
+    }
 }
 
 export function registration(data, callback) {
     let users = StorageFactory.getUsers(),
         fUsers = Object.values(users).filter(user => user.username === data.username);
     if(fUsers.length > 0) {
-        callback({message: "This username already has taken :("})
+        callback({message: errUsernameExist})
     } else {
         data.id = uuidv1();
         StorageFactory.addUser(data);
@@ -60,12 +79,15 @@ export function login(data, callback) {
             user.username === data.username && user.password === data.password
         );
     if(fUsers.length > 0) {
-        StorageFactory.addUser(data);
         StorageFactory.setLoggedInUser(data);
-        data.token = createToken(data);
         StorageFactory.setRooms(roomsData);
-        callback(null, {user: data, rooms: StorageFactory.getRooms()});
+        callback(null, {
+            user: data,
+            token: createToken(data),
+            rooms: Object.values(StorageFactory.getRooms()),
+            reservations: Object.values(StorageFactory.getReservations()),
+        });
     } else {
-        callback({message: "Please make sure that you have entered your login and password correctly."})
+        callback({message: errLoginPass})
     }
 }

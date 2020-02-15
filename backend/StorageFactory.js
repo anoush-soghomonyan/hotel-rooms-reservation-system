@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import uuidv1 from 'uuid/v1';
 
 const ROOMS = "ROOMS";
 const USERS = "USERS";
@@ -25,7 +24,7 @@ export default class StorageFactory {
     }
 
     static setJSON(keyString, json) {
-        if (json) {
+        if(json) {
             let str = JSON.stringify(json);
             this.setString(keyString, str);
         }
@@ -34,7 +33,7 @@ export default class StorageFactory {
     static getJSON(keyString) {
         let jsonStr = this.getString(keyString);
         let json = {};
-        if (jsonStr) {
+        if(jsonStr) {
             json = JSON.parse(jsonStr);
         }
         return json;
@@ -54,22 +53,22 @@ export default class StorageFactory {
 
     static updateReservation(data) {
         let reserves = this.getReservations();
-        reserves[data.id || uuidv1()] = data;
+        reserves[data.id] = data;
         this.setJSON(RESERVATIONS, reserves);
     }
 
     static getReservations() {
-        return this.getJSON(RESERVATIONS) || {};
+        return this.getJSON(RESERVATIONS);
     }
 
     static addUser(data) {
         let users = this.getUsers();
         users[data.id] = data;
-        this.setJSON(RESERVATIONS, users);
+        this.setJSON(USERS, users);
     }
 
     static getUsers() {
-        return this.getJSON(USERS) || {};
+        return this.getJSON(USERS);
     }
 
     static setRooms(rooms) {
