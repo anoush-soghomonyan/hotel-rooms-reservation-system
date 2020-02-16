@@ -1,13 +1,32 @@
 import React from 'react';
 import {ProgressIcon} from "./common/Icons";
+import {withRouter} from 'react-router-dom';
 import LoginInput from "./common/LoginInput";
+import {RouterPath} from "../utils/constants";
+import DataManager from "../managers/DataManager";
 
-function LoginComponent() {
-    let error_message = null;
-    let should_show_indicator = null;
+function LoginComponent({history}) {
+    let username = "",
+        password = "",
+        error_message = null,
+        should_show_indicator = null;
 
     const onLoginChange = (e) => {
-        console.log(e.target.value);
+        username = e.target.value;
+    };
+
+    const onPasswordChange = (e) => {
+        password = e.target.value;
+    };
+
+    const onLoginClick = (e) => {
+        DataManager.sharedInstance().login({username: username, password: password}, (err, res) => {
+            if(err) {
+                alert(err.message);
+            } else {
+                history.push(RouterPath.AdminPanel)
+            }
+        })
     };
 
     return <div className='login'>
@@ -22,7 +41,7 @@ function LoginComponent() {
             type="password"
             className='pass'
             placeholder="Password"
-            onChange={onLoginChange}
+            onChange={onPasswordChange}
             errorMessage={error_message}
         />
         {should_show_indicator
@@ -31,10 +50,10 @@ function LoginComponent() {
             </span>
             : <button
                 className='reg-button'
-                // onClick={() => this.onLoginClick()}
+                onClick={onLoginClick}
             >Log in</button>
         }
     </div>
 }
 
-export default LoginComponent;
+export default withRouter(LoginComponent);

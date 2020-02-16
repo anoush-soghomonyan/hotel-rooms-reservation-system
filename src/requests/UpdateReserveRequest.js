@@ -1,8 +1,8 @@
 import Request from "./Request";
-import {API_ADD_RESERVATION} from "./RequestConstants";
+import {API_UPDATE_RESERVATION} from "./RequestConstants";
 
 export default class UpdateReserveRequest extends Request {
     constructor(data) {
-        super(API_ADD_RESERVATION, data);
+        super(API_UPDATE_RESERVATION, data);
     }
 }

@@ -4,4 +4,8 @@ export default class Model {
     constructor(id) {
         this.id = id || uuidv1();
     }
+
+    update() {
+
+    }
 }

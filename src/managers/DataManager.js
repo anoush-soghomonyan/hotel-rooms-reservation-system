@@ -1,24 +1,25 @@
-import _ from 'underscore';
 import Room from "../models/Room";
 import User from "../models/User";
 import CacheManager from "./CacheManager";
 import Reservation from "../models/Reservation";
 import LoginRequest from "../requests/LoginRequest";
-import StorageFactory from "../../backend/StorageFactory";
+import StorageFactory from "../backend/StorageFactory";
 import RegisterRequest from "../requests/RegisterRequest";
-import UpdateReserveRequest from "../requests/UpdateReserveRequest";
 import GetReservesRequest from "../requests/GetReservesRequest";
+import UpdateReserveRequest from "../requests/UpdateReserveRequest";
 
 let sharedInstance = null;
 
 export default class DataManager {
-    static sharedInstanc() {
+    static sharedInstance() {
         if(sharedInstance === null) {
             sharedInstance = new DataManager();
         }
+        return sharedInstance;
     }
 
     constructor() {
+        // StorageFactory.clearAllStorageData()
         this.user = null;
         this.rooms = [];
         this.reservations = [];
@@ -30,7 +31,13 @@ export default class DataManager {
         let req = new RegisterRequest(data);
         req.execute()
             .then(res => {
-                callback(null, res);
+                this.login(res, (err, res) => {
+                    if(err) {
+                        callback(err);
+                    } else {
+                        callback(null, res);
+                    }
+                })
             })
             .catch(err => {
                 callback(err);
@@ -44,7 +51,11 @@ export default class DataManager {
                 this.user = new User(res.user);
                 this.rooms = this.roomsCache.createModelsArray(res.rooms);
                 this.reservations = this.reservesCache.createModelsArray(res.reservations, true);
-                callback(null, res);
+                callback(null, {
+                    user: this.user,
+                    rooms: this.rooms,
+                    reservations: this.reservations,
+                });
             })
             .catch(err => {
                 callback(err);
@@ -53,7 +64,7 @@ export default class DataManager {
 
     autoLogin(callback) {
         let user = StorageFactory.getLoggedInUser();
-        if(_.isEmpty(user)) {
+        if(!user) {
             callback({message: 'user was logged out'});
         } else {
             this.login(user, (err, res) => {
@@ -73,7 +84,7 @@ export default class DataManager {
      * @param callback
      */
     getReservations(userId, createdAt, callback) {
-        let req = new GetReservesRequest(userId);
+        let req = new GetReservesRequest(userId, createdAt);
         req.execute()
             .then(res => {
                 this.reservations = [...this.reservations, this.reservesCache.createModelsArray(res, true)];

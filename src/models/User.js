@@ -5,4 +5,8 @@ export default class User extends Model {
         super(data.id);
         this.username = data.username;
     }
+
+    test() {
+        return "huhu";
+    }
 }

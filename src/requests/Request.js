@@ -7,19 +7,21 @@ export default class Request {
 
     execute() {
         return new Promise((resolve, reject) => {
-            let result = this.url(this.data);
-            if(result) {
-                resolve(this.onResponseReady(result));
-            } else {
-                reject(this.onResponseError("Didn't match any data"));
-            }
-
+            this.url(this.data, (error, result) => {
+                setTimeout(() => {
+                    if(result) {
+                        resolve(this.onResponseReady(result));
+                    } else {
+                        reject(this.onResponseError(error));
+                    }
+                }, 400);
+            });
         })
     }
 
     /**
      * Function should return result
-     * @param result is server response
+     * @param result - server response
      */
     onResponseReady(result) {
         return result;

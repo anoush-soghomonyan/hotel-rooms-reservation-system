@@ -9,12 +9,12 @@ export default class CacheManager {
             return null;
         }
         let model = this.getModelById(json.id);
-        if(model === undefined) {
+        if(model) {
+            model.update(json);
+        } else {
             let instance = new this.model(json);
             this.setModelById(instance.id, instance);
             model = instance;
-        } else if(model.update){
-            model.update(json);
         }
         return model;
     }

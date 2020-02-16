@@ -44,7 +44,8 @@ export default class StorageFactory {
     }
 
     static getLoggedInUser() {
-        return this.getJSON(LOGGED_IN_USER);
+        let user = this.getJSON(LOGGED_IN_USER);
+        return _.isEmpty(user) ? null : user;
     }
 
     static logout() {

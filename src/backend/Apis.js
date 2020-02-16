@@ -46,14 +46,14 @@ export function getReservations(data, createdAt, callback) {
 
 export function updateReservation(data, callback) {
     if(reliableUser(data.user_id, data.token)) {
-        if(!data.id) {
-            data.id = uuidv1();
-            data.created_at = new Date();
-        } else {
+        if(data.id) {
             if(!data.updated_at) {
                 data.updated_at = [];
             }
             data.updated_at.unshift(new Date());
+        } else {
+            data.id = uuidv1();
+            data.created_at = new Date();
         }
         const {user_id, token, ...data} = data;
         data.creator_id = user_id;
@@ -76,7 +76,7 @@ export function registration(data, callback) {
     } else {
         data.id = uuidv1();
         StorageFactory.addUser(data);
-        callback(null, {data: data});
+        callback(null, data);
     }
 }
 

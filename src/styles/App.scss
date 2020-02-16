@@ -3,12 +3,41 @@
 @import './common';
 @import url('https://fonts.googleapis.com/css?family=Muli:100,200,300,400,500,600,700,800,900,normal,bold,bolder,inherit');
 
-html, body, #root, .App {
+html, body, #root, .App, .main-wrap, .admin-main-content {
     height: 100%;
+}
+
+h1 {
+    font-size: 150%;
 }
 
 * {
     font-family: 'Muli', sans-serif;
+}
+
+header {
+    height: 110px;
+}
+
+.admin-main-content {
+    background: red;
+    height: calc(100% - 110px);
+}
+
+.progress-wrap {
+    @extend %flex-center;
+    color: white;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    position: fixed;
+    background: $main-dark;
+
+    .MuiCircularProgress-circle {
+        color: $main-color-2;
+    }
 }
 
 .login-wrapper {

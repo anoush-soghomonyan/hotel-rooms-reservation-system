@@ -1,22 +1,53 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {ProgressIcon} from "./common/Icons";
+import {withRouter} from 'react-router-dom';
 import LoginInput from "./common/LoginInput";
+import {checkUsername} from "../utils/utils";
+import {RouterPath} from "../utils/constants";
+import DataManager from "../managers/DataManager";
 
-function RegisterComponent() {
-    let error_message = null;
-    let should_show_indicator = null;
+function RegisterComponent({history}) {
+    let username,
+        password,
+        confirmPass,
+        error_message = null,
+        should_show_indicator = null;
 
-    const onUsernameChange = () => {
-
+    const onUsernameChange = (e) => {
+        username = e.target.value;
     };
 
-    const onPinChange = () => {
-
+    const onPinChange = (e) => {
+        password = e.target.value;
     };
 
-    const onConfirmChange = () => {
+    const onConfirmChange = (e) => {
+        confirmPass = e.target.value;
+    };
 
+    const handleError = () => {
+        if(checkUsername(username)) {
+            if(password !== confirmPass) {
+                return "Passwords didn't match";
+            }
+        } else {
+            return "Incorrect username format";
+        }
+    };
+
+    const onRegisterClick = (e) => {
+        let err = handleError();
+        if(err) {
+            alert(err);
+            return;
+        }
+        DataManager.sharedInstance().registration({username: username, password: password}, (err, res) => {
+            if(err) {
+                alert(err.message || err);
+            } else {
+                history.push(RouterPath.AdminPanel);
+            }
+        })
     };
 
     return <div className='reg-content'>
@@ -40,10 +71,11 @@ function RegisterComponent() {
                 ? <ProgressIcon/>
                 : <button
                     className='reg-button'
+                    onClick={onRegisterClick}
                 >Register now</button>
             }
         </span>
     </div>
 }
 
-export default RegisterComponent;
+export default withRouter(RegisterComponent);
