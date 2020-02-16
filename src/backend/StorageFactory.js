@@ -48,7 +48,7 @@ export default class StorageFactory {
         return _.isEmpty(user) ? null : user;
     }
 
-    static logout() {
+    static removeLoggedInUser() {
         this.removeItem(LOGGED_IN_USER);
     }
 

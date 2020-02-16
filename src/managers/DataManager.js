@@ -77,6 +77,10 @@ export default class DataManager {
         }
     }
 
+    logout() {
+        StorageFactory.removeLoggedInUser();
+    }
+
     /**
      * Function can be used for paging of reservations, it should fetch starts from createdAt timestamp
      * @param userId is active user id

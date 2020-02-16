@@ -7,11 +7,12 @@ export default class Reservation extends Model{
     }
 
     update(data) {
+        this.start = data.start;
+        this.end = data.start;
         this.creator_id = data.creator_id;
         this.created_at = data.created_at;
         this.updated_at = data.updated_at;
         this.room_number = data.room_number;
-        this.interval = data.interval;
         this.adult = data.adult;
         this.children = data.children;
     }
