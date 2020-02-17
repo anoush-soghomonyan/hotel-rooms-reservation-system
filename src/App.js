@@ -5,6 +5,7 @@ import {RouterPath} from "./utils/constants";
 import DataManager from "./managers/DataManager";
 import MainComponent from "./components/MainComponent";
 import ProgressIndicator from "./requests/ProgressIndicator";
+import {PrivateRoute} from "./components/common/PrivateRout";
 import LoginWrapComponent from "./components/LoginWrapComponent";
 import {BrowserRouter as Router, Switch, Route, Redirect} from "react-router-dom";
 
@@ -36,9 +37,7 @@ export default class App extends React.Component {
                         <Route path={RouterPath.Login}>
                             <LoginWrapComponent />
                         </Route>
-                        <Route path={RouterPath.AdminPanel}>
-                            <MainComponent />
-                        </Route>
+                        <PrivateRoute path={RouterPath.AdminPanel} component={MainComponent}/>
                     </Switch>
                 </div>
             }
