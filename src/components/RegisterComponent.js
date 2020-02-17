@@ -43,7 +43,7 @@ function RegisterComponent({history}) {
         }
         DataManager.sharedInstance().registration({username: username, password: password}, (err, res) => {
             if(err) {
-                alert(err.message || err);
+                alert(err);
             } else {
                 history.push(RouterPath.AdminPanel);
             }

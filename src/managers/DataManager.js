@@ -6,6 +6,7 @@ import LoginRequest from "../requests/LoginRequest";
 import StorageFactory from "../backend/StorageFactory";
 import RegisterRequest from "../requests/RegisterRequest";
 import GetReservesRequest from "../requests/GetReservesRequest";
+import {datesArrBetweenDates, getDaysCount} from "../utils/utils";
 import UpdateReserveRequest from "../requests/UpdateReserveRequest";
 
 let sharedInstance = null;
@@ -48,6 +49,8 @@ export default class DataManager {
         let req = new LoginRequest(data);
         req.execute()
             .then(res => {
+                console.log('login');
+                console.log(res);
                 this.user = new User(res.user);
                 this.rooms = this.roomsCache.createModelsArray(res.rooms);
                 this.reservations = this.reservesCache.createModelsArray(res.reservations, true);
@@ -65,7 +68,7 @@ export default class DataManager {
     autoLogin(callback) {
         let user = StorageFactory.getLoggedInUser();
         if(!user) {
-            callback({message: 'user was logged out'});
+            callback('user was logged out');
         } else {
             this.login(user, (err, res) => {
                 if(err) {
@@ -78,6 +81,7 @@ export default class DataManager {
     }
 
     logout() {
+        this.user = null;
         StorageFactory.removeLoggedInUser();
     }
 
@@ -101,7 +105,7 @@ export default class DataManager {
 
     /**
      *
-     * @param data js object is contain: id (edit mode), room_number, start_date, end_date, adult, children parameters
+     * @param data js object is contain: id (edit mode), room_number, start, end, adult, children parameters
      * @param edit parameter used when existing reserve need to be edited
      * @param callback
      */
@@ -112,10 +116,42 @@ export default class DataManager {
             .then(res => {
                 let obj = this.reservesCache.createModelFromJson(res);
                 if(!edit) {
+                    this.setupRoomUnavailableDays(res);
                     this.reservations.unshift(obj);
                 }
                 callback(null, res);
             })
             .catch(err => callback(err));
+    }
+
+    setupRoomUnavailableDays(data) {
+        let room = this.roomsCache.getModelById(data.room_number),
+            days = getDaysCount(data.start, data.end);
+
+        room.unavailable_dates.push(data.start);
+        for(let i = 1; i < days; i++) {
+            room.unavailable_dates.push(new Date(data.start.getTime() + (24000*3600*i)));
+        }
+    }
+
+    getAvailableRooms(startDate, endDate) {
+        let isBreak = false;
+        let rooms = [...this.rooms];
+        let dates = datesArrBetweenDates(startDate, endDate);
+        for(let room of this.rooms) {
+            for(let unDate of room.unavailable_dates) {
+                for(let d of dates) {
+                    if(getDaysCount(unDate, d) === 0) {
+                        rooms.splice(rooms.indexOf(room), 1);
+                        isBreak = true;
+                        break;
+                    }
+                }
+                if(isBreak) {
+                    isBreak = false;
+                    break;
+                }
+            }
+        }
     }
 }

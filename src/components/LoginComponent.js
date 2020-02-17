@@ -22,7 +22,7 @@ function LoginComponent({history}) {
     const onLoginClick = (e) => {
         DataManager.sharedInstance().login({username: username, password: password}, (err, res) => {
             if(err) {
-                alert(err.message);
+                alert(err);
             } else {
                 history.push(RouterPath.AdminPanel)
             }

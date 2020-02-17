@@ -20,11 +20,13 @@ export default class CalendarComponent extends React.Component {
         const {show_calendar, start_date, end_date} = this.state;
         return <div>
             <TextField
+                color='secondary'
                 label="Start date"
                 value={this.showDate(start_date)}
                 onClick={this.onStartDateClick}
             />
             <TextField
+                color='secondary'
                 label="End date"
                 value={this.showDate(end_date)}
                 onClick={this.onEndDateClick}
@@ -59,17 +61,15 @@ export default class CalendarComponent extends React.Component {
     };
 
     showDate(date) {
-        return date ? moment(date).format('LL') : "";
+         return date ? moment(date).format('LL') : "";
     }
 
     handleCalendarChange = (e) => {
         let state = {show_calendar: false};
         if(this.startMode) {
-            console.log('start');
             state.start_date = e;
             this.props.handleStartDate(e);
         } else {
-            console.log('end');
             state.end_date = e;
             this.props.handleEndDate(e);
         }

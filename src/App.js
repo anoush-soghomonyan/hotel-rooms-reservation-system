@@ -27,7 +27,6 @@ export default class App extends React.Component {
     }
 
     render() {
-        console.log(this.user);
         return <Router>
             {this.state.show_progress
                 ? <ProgressIndicator />

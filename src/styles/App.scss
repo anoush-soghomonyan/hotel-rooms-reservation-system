@@ -36,7 +36,6 @@ header {
         height: 100%;
         background: $dark;
         border-right: 0.4px solid $transparent01;
-        box-shadow: 1px 1px 4px $transparent01;
     }
 
     .MuiTab-textColorPrimary {
@@ -48,10 +47,6 @@ header {
             background-color: $transparent01;
         }
     }
-
-    //.PrivateTabIndicator-vertical-78 {
-    //    background-color: $main-color-2;
-    //}
 }
 
 .admin-main-content {
@@ -59,12 +54,14 @@ header {
 
     .side-bar {
         height: 100%;
+        padding: 20px 0;
     }
 
     .tab-content {
         padding: 20px;
         width: 100%;
         height: 100%;
+        overflow: auto;
         background: $light;
     }
 }
@@ -193,5 +190,19 @@ header {
         color: $main-dark;
         border: none;
         box-shadow: 1px 1px 5px $dark;
+    }
+}
+
+.new-reserve {
+    .section {
+        padding: 20px 0;
+
+        &.header {
+            @extend %flex-space-between;
+
+            h1 {
+                color: $dark;
+            }
+        }
     }
 }

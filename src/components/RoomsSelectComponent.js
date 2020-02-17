@@ -22,6 +22,7 @@ export default function RoomsSelectComponent({rooms, handleSelection, selectedId
 
     const handleChange = event => {
         console.log(event.target.value);
+        handleSelection(event.target.value);
         setRoomId(event.target.value);
     };
 
@@ -47,6 +48,6 @@ export default function RoomsSelectComponent({rooms, handleSelection, selectedId
 RoomsSelectComponent.propTypes = {
     rooms: PropTypes.array.isRequired,
     selectedId: PropTypes.number,
-    handleRoomSelect: PropTypes.func.isRequired,
+    handleSelection: PropTypes.func.isRequired,
 };
 

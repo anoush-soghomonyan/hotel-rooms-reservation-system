@@ -1,9 +1,11 @@
 import React from 'react';
+import {compose} from 'redux';
+import {connect} from "react-redux";
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Paper from '@material-ui/core/Paper';
 import {RouterPath} from "../utils/constants";
-import {withRouter, Route} from "react-router-dom";
+import {withRouter, Route, Redirect} from "react-router-dom";
 import NewReservationComponent from "./NewReservationComponent";
 import ReservationsListComponent from "./ReservationsListComponent";
 
@@ -11,11 +13,11 @@ class VerticalTabs extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: 1,
+            value: 0,
         }
     }
     componentDidMount() {
-        this.props.history.push(RouterPath.New);
+        this.props.history.push(RouterPath.List);
     }
 
     handleChange = (event, newValue) => {
@@ -44,11 +46,21 @@ class VerticalTabs extends React.Component {
                 </Paper>
             </div>
             <div className='tab-content'>
+                {this.props.edit && <Redirect to={RouterPath.Edit} go={-1}/>}
                 <Route path={RouterPath.List}><ReservationsListComponent/></Route>
                 <Route path={RouterPath.New}><NewReservationComponent /></Route>
+                <Route path={RouterPath.Edit}><NewReservationComponent item={this.props.edit}/></Route>
             </div>
         </div>
     }
 }
 
-export default withRouter(VerticalTabs);
+export default compose(
+    withRouter,
+    connect((state) => {
+        console.log(state);
+        return {
+            edit: state.editReservation,
+        }
+    })
+)(VerticalTabs);
