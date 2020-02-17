@@ -9,7 +9,7 @@ function LoginComponent({history}) {
     let username = "",
         password = "",
         error_message = null,
-        should_show_indicator = null;
+        should_show_indicator = null; //later can be used for loading icon
 
     const onLoginChange = (e) => {
         username = e.target.value;

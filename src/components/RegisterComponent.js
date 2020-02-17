@@ -51,6 +51,7 @@ function RegisterComponent({history}) {
     };
 
     return <div className='reg-content'>
+        <span className='heading'>Hotel rooms reservation system</span>
         <span className='heading'>Create a new Admin</span>
         <span className='description'>Admin should be approved by hotel.</span>
         <LoginInput

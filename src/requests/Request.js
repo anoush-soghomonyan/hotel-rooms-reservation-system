@@ -14,7 +14,7 @@ export default class Request {
                     } else {
                         reject(this.onResponseError(error));
                     }
-                }, 0);
+                }, 400);
             });
         })
     }

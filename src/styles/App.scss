@@ -22,6 +22,10 @@ header {
     background: $dark;
     color: $main-color-2;
     border-bottom: 1px solid $transparent04;
+
+    .buttons > * {
+        margin: 0 10px;
+    }
 }
 
 .admin-main-content {
@@ -151,7 +155,6 @@ header {
 
             .description {
                 width: 320px;
-                height: 82px;
                 font-size: 16px;
                 font-weight: 200;
                 line-height: 20px;

@@ -9,36 +9,48 @@ import RoomsSelectComponent from "./RoomsSelectComponent";
 class NewReservationComponent extends React.Component {
     constructor(props) {
         super(props);
-        this.reserve = props.item;
+        // this.reserve = props.item; when comes from props with redux
+        this.reserve = this.props.location.state && this.props.location.state.reservation;
+        let res = this.reserve;
         this.state = {
-            end: this.reserve.end || "",
-            start: this.reserve.start || "",
-            rooms: [],
-            room_number: this.reserve.room_number || null,
+            end: res ? res.end : "",
+            start: res ? res.start : "",
+            room_number: res ? res.room_number : null,
+            rooms: res ? DataManager.sharedInstance().getAvailableRooms(res.start, res.end, res) : null,
         };
     }
 
     render() {
-        const {start, end, room_number} = this.state;
+        const {start, end, room_number, rooms} = this.state;
         return <div className='new-reserve'>
             <div className='section header'>
                 <h1>Reserve room</h1>
                 <Button
-                    disabled={!start || !end || !room_number}
+                    color="secondary"
+                    variant="outlined"
+                    onClick={this.onCancelClick}
+                >Cancel
+                </Button>
+                <Button
+                    disabled={(!start || !end || !room_number)}
                     color="secondary"
                     variant="outlined"
                     onClick={this.onReservationClick}
-                >
-                    Reserve now
+                >{this.reserve ? "Edit reservation" : "Reserve now"}
                 </Button>
             </div>
             <div className='section'>
-                <CalendarComponent handleEndDate={this.handleDateEnd} handleStartDate={this.handleDateStart}/>
+                <CalendarComponent
+                    end={end}
+                    start={start}
+                    handleEndDate={this.handleDateEnd}
+                    handleStartDate={this.handleDateStart}/>
             </div>
             <div className='section'>
                 {(start && end) &&
                 <RoomsSelectComponent
-                    rooms={DataManager.sharedInstance().rooms}
+                    rooms={rooms}
+                    selectedId={room_number}
                     handleSelection={this.handleSelectChange}
                 />
                 }
@@ -52,37 +64,59 @@ class NewReservationComponent extends React.Component {
 
     handleDateStart = (e) => {
         this.state.start = e;
-        let err = this.dateError();
-        if(err) {
-            alert(err);
-        } else {
-            this.setState({start: e});
+        if(!this.isError()) {
+            this.setState({
+                start: e,
+                rooms: this.getRooms(),
+            });
         }
     };
 
     handleDateEnd = (e) => {
         this.state.end = e;
-        let err = this.dateError();
-        if(err) {
-            alert(err);
-        } else {
-            this.setState({end: e});
+        if(!this.isError()) {
+            this.setState({
+                end: e,
+                rooms: this.getRooms(),
+            });
+
         }
     };
 
-    dateError = () => {
+    getRooms() {
+        let {start, end} = this.state;
+        if(start && end) {
+            let rooms = DataManager.sharedInstance().getAvailableRooms(start, end, this.reserve);
+            let room = rooms.filter(r => r.id === this.state.room_number);
+            if(room.length === 0) {
+                this.setState({room_number: null});
+            }
+            return rooms;
+        }
+    }
+
+    isError = () => {
         const {start, end} = this.state;
         if(start && end && start.getTime() > end.getTime()) {
-            return "End date can't be smaller than start date. Select correct dates to continue.";
+            alert("End date can't be smaller than start date. Select correct dates to continue.");
+            return true;
         }
+    };
+
+    onCancelClick = () => {
+        this.props.history.replace(RouterPath.List);
     };
 
     onReservationClick = () => {
-        DataManager.sharedInstance().updateReservation({
+        let data = {
             end: this.state.end,
             start: this.state.start,
             room_number: this.state.room_number,
-        }, null, (err, res) => {
+        };
+        if(this.reserve) {
+            data.id = this.reserve.id;
+        }
+        DataManager.sharedInstance().updateReservation(data, (err, res) => {
             if(err) {
                 alert(err);
             } else {

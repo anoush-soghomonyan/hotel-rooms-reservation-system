@@ -1,5 +1,4 @@
 import Model from "./Model";
-import moment from "moment";
 import DataManager from "../managers/DataManager";
 
 export default class Reservation extends Model{
@@ -17,9 +16,6 @@ export default class Reservation extends Model{
         this.start = this.getDateObj(data.start);
     }
 
-    /**
-     * this function can be used when in model will be unnecessary properties for server
-     */
     isCreatorMe() {
         return this.creator_id === DataManager.sharedInstance().user.id;
     }

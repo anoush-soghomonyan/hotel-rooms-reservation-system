@@ -17,7 +17,7 @@ export const datesArrBetweenDates = (start, end) => {
 
     arr.push(start);
     for(let i = 1; i < count; i++) {
-        arr.push(new Date(start.getTime() + (24000*3600*i)));
+        arr.push(new Date(start.getTime() + (86400000 * i)));
     }
     return arr;
 };

@@ -46,7 +46,7 @@ class VerticalTabs extends React.Component {
                 </Paper>
             </div>
             <div className='tab-content'>
-                {this.props.edit && <Redirect to={RouterPath.Edit} go={-1}/>}
+                {this.props.edit && <Redirect to={RouterPath.Edit}/>}
                 <Route path={RouterPath.List}><ReservationsListComponent/></Route>
                 <Route path={RouterPath.New}><NewReservationComponent /></Route>
                 <Route path={RouterPath.Edit}><NewReservationComponent item={this.props.edit}/></Route>

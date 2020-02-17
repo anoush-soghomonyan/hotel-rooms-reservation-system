@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {dateLL} from "../utils/utils";
 import List from '@material-ui/core/List';
+import {withRouter} from 'react-router-dom';
+import {RouterPath} from "../utils/constants";
 import EditIcon from '@material-ui/icons/Edit';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -41,6 +43,7 @@ class ReservationsListComponent extends React.Component {
             {list.length > 0
                 ? <List className={classes.root}>
                     {list.map(item => <ReservationComponent
+                        history={this.props.history}
                         key={item.id}
                         item={item}
                         classes={classes}
@@ -53,7 +56,7 @@ class ReservationsListComponent extends React.Component {
     }
 }
 
-function ReservationComponent({item, dispatch}) {
+function ReservationComponent({item, dispatch, history}) {
     let date = `(${dateLL(item.start)} - ${dateLL(item.end)})`;
     let secondaryText = `Creation date: ${dateLL(item.created_at)} | 
     ${getEditedText(item.updated_at)}`;
@@ -66,6 +69,7 @@ function ReservationComponent({item, dispatch}) {
             <ListItemSecondaryAction>
                 <Tooltip title="Edit">
                     <IconButton
+                        color='secondary'
                         edge="end"
                         aria-label="comments"
                         disabled={!item.isCreatorMe()}
@@ -80,11 +84,17 @@ function ReservationComponent({item, dispatch}) {
     </React.Fragment>;
     
     function openEdit() {
-        dispatch(createAction(EDIT_RESERVATION, item));
+        history.push(RouterPath.Edit);
+        history.push({
+            pathname: RouterPath.Edit,
+            state: {reservation: item}
+        })
+        // dispatch(createAction(EDIT_RESERVATION, item));
     }
 }
 
 export default compose(
+    withRouter,
     withStyles(styles),
     connect()
 )(ReservationsListComponent);

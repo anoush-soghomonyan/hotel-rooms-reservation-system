@@ -46,6 +46,7 @@ export function getReservations(data, createdAt, callback) {
 }
 
 export function updateReservation(data, callback) {
+    data = Object.assign({}, data);
     if(reliableUser(data.user_id, data.token)) {
         if(!data.start || !data.end || !data.room_number) {
             callback(invalidParameters);
@@ -75,6 +76,7 @@ export function updateReservation(data, callback) {
 }
 
 export function registration(data, callback) {
+    data = Object.assign({}, data);
     let users = StorageFactory.getUsers(),
         fUsers = Object.values(users).filter(user => user.username === data.username);
     if(fUsers.length > 0) {
@@ -88,6 +90,7 @@ export function registration(data, callback) {
 }
 
 export function login(data, callback) {
+    data = Object.assign({}, data);
     let users = StorageFactory.getUsers(),
         fUsers = Object.values(users).filter(user =>
             user.username === data.username && user.password === data.password
@@ -96,12 +99,13 @@ export function login(data, callback) {
         data.id = fUsers[0].id;
         StorageFactory.setLoggedInUser(data);
         StorageFactory.setRooms(roomsData);
-        callback(null, {
+        let result = {
             user: data,
             token: createToken(data),
             rooms: Object.values(StorageFactory.getRooms()),
             reservations: Object.values(StorageFactory.getReservations()),
-        });
+        };
+        callback(null, result);
     } else {
         callback(errLoginPass);
     }

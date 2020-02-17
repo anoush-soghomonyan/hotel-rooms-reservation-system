@@ -20,7 +20,6 @@ export default class DataManager {
     }
 
     constructor() {
-        // StorageFactory.clearAllStorageData()
         this.user = null;
         this.rooms = [];
         this.reservations = [];
@@ -81,8 +80,12 @@ export default class DataManager {
     }
 
     logout() {
-        this.user = null;
+        sharedInstance = null;
         StorageFactory.removeLoggedInUser();
+    }
+
+    clearAllStorageData() {
+        StorageFactory.clearAllStorageData();
     }
 
     /**
@@ -106,17 +109,21 @@ export default class DataManager {
     /**
      *
      * @param data js object is contain: id (edit mode), room_number, start, end, adult, children parameters
-     * @param edit parameter used when existing reserve need to be edited
      * @param callback
      */
-    updateReservation(data, edit, callback) {
+    updateReservation(data, callback) {
         data.user_id = this.user.id;
         let req = new UpdateReserveRequest(data);
         req.execute()
             .then(res => {
-                let obj = this.reservesCache.createModelFromJson(res);
-                if(!edit) {
+                if(!data.id) {
                     this.setupRoomUnavailableDays(res);
+                } else {
+                    this.revertRoomUnavailableDays(data);
+                    this.setupRoomUnavailableDays(res);
+                }
+                let obj = this.reservesCache.createModelFromJson(res);
+                if(!data.id) {
                     this.reservations.unshift(obj);
                 }
                 callback(null, res);
@@ -126,20 +133,41 @@ export default class DataManager {
 
     setupRoomUnavailableDays(data) {
         let room = this.roomsCache.getModelById(data.room_number),
-            days = getDaysCount(data.start, data.end);
+            dateArray = datesArrBetweenDates(data.start, data.end);
 
-        room.unavailable_dates.push(data.start);
-        for(let i = 1; i < days; i++) {
-            room.unavailable_dates.push(new Date(data.start.getTime() + (24000*3600*i)));
+        room.unavailable_dates = [...room.unavailable_dates, ...dateArray];
+        StorageFactory.updateRoom(room);
+    }
+
+    revertRoomUnavailableDays(data) {
+        let oldRes = this.reservesCache.getModelById(data.id),
+            oldDates = datesArrBetweenDates(oldRes.start, oldRes.end),
+            oldRoom = this.roomsCache.getModelById(oldRes.room_number);
+        for(let date of oldDates) {
+            for(let i = 0; i < oldRoom.unavailable_dates.length; i++) {
+                let unavailable = oldRoom.unavailable_dates[i];
+                if(getDaysCount(unavailable, date) === 0) {
+                    oldRoom.unavailable_dates.splice(i, 1);
+                    break;
+                }
+            }
         }
     }
 
-    getAvailableRooms(startDate, endDate) {
+    getAvailableRooms(startDate, endDate, reservation = null) {
+        if(reservation) {
+            let room = this.roomsCache.getModelById(reservation.room_number);
+            let dates = [...room.unavailable_dates];
+            this.revertRoomUnavailableDays(reservation);
+            room.tmp_dates = room.unavailable_dates;
+            room.unavailable_dates = dates;
+        }
         let isBreak = false;
         let rooms = [...this.rooms];
         let dates = datesArrBetweenDates(startDate, endDate);
         for(let room of this.rooms) {
-            for(let unDate of room.unavailable_dates) {
+            let unavailable_dates = room.tmp_dates || room.unavailable_dates;
+            for(let unDate of unavailable_dates) {
                 for(let d of dates) {
                     if(getDaysCount(unDate, d) === 0) {
                         rooms.splice(rooms.indexOf(room), 1);
@@ -153,5 +181,6 @@ export default class DataManager {
                 }
             }
         }
+        return rooms;
     }
 }

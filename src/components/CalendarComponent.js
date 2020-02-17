@@ -10,8 +10,8 @@ export default class CalendarComponent extends React.Component {
         super(props);
         this.startMode = false;
         this.state = {
-            end_date: "",
-            start_date: "",
+            end_date: props.end,
+            start_date: props.start,
             show_calendar: false,
         }
     }
@@ -81,6 +81,8 @@ export default class CalendarComponent extends React.Component {
  * @type {{handleEndDate: function argument is a Date object, handleStartDate: function argument is a Date object}}
  */
 CalendarComponent.propTypes = {
+    end: PropTypes.string,
+    start: PropTypes.string,
     handleEndDate: PropTypes.func.isRequired,
     handleStartDate: PropTypes.func.isRequired,
 };
