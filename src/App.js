@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './styles/Reset.css';
 import './styles/App.scss';
 import {RouterPath} from "./utils/constants";
@@ -16,6 +16,16 @@ export default class App extends React.Component {
             show_progress: true,
         };
     }
+
+    if (true) {
+        useState(() => {
+            console.log("Ann 1");
+        });    
+    }
+
+    useState(() => {
+        console.log("Ann");
+    });
 
     componentDidMount() {
         let dm = DataManager.sharedInstance();
